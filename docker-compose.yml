@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  altura-medplum-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Use Medplum's demo server by default, or override with your own
+        NEXT_PUBLIC_MEDPLUM_BASE_URL: ${NEXT_PUBLIC_MEDPLUM_BASE_URL:-https://api.medplum.com/}
+    container_name: altura-medplum-demo
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Override these in your .env file or docker-compose.override.yml
+      - NEXT_PUBLIC_MEDPLUM_BASE_URL=${NEXT_PUBLIC_MEDPLUM_BASE_URL:-https://api.medplum.com/}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Uncomment and modify these labels if you're using Traefik
+    # labels:
+    #   - traefik.enable=true
+    #   - traefik.http.routers.altura-demo.rule=Host(`your-domain.com`)
+    #   - traefik.http.routers.altura-demo.entrypoints=websecure
+    #   - traefik.http.routers.altura-demo.tls=true
+    #   - traefik.http.routers.altura-demo.tls.certresolver=letsencrypt
+    #   - traefik.http.services.altura-demo.loadbalancer.server.port=3000
+
+# Uncomment if using external networks (e.g., with Traefik)
+# networks:
+#   default:
+#     external:
+#       name: your-network-name

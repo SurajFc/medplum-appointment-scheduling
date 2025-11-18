@@ -1,0 +1,36 @@
+# docker-compose.override.yml.example
+# Copy this file to docker-compose.override.yml and modify for your deployment
+
+version: '3.8'
+
+services:
+  altura-medplum-demo:
+    # Example production overrides
+    environment:
+      # Your custom Medplum server
+      - NEXT_PUBLIC_MEDPLUM_BASE_URL=https://your-medplum-server.com/
+      
+      # Memory optimization for larger deployments
+      - NODE_OPTIONS=--max-old-space-size=1024
+    
+    # Example Traefik labels for production deployment
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+      - traefik.http.routers.altura-demo.rule=Host(`your-domain.com`)
+      - traefik.http.routers.altura-demo.entrypoints=websecure
+      - traefik.http.routers.altura-demo.tls=true
+      - traefik.http.routers.altura-demo.tls.certresolver=letsencrypt
+      - traefik.http.services.altura-demo.loadbalancer.server.port=3000
+      
+      # Optional: Rate limiting and security headers
+      # - traefik.http.routers.altura-demo.middlewares=rate-limit@docker,secure-headers@docker
+    
+    # Use external network if using Traefik
+    networks:
+      - web
+      - default
+
+networks:
+  web:
+    external: true
