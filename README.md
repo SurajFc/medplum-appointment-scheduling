@@ -13,7 +13,7 @@ A modern Electronic Health Record (EHR) demonstration built with **Next.js** and
 - **Demo Data Seeding**: One-click sample data generation for testing
 - **TypeScript-First**: Strict type safety with no `any` types
 - **Professional UI**: Clean, responsive design with Mantine components
-
+![alt text](image.png)
 ## 📸 Screenshots
 
 ### Dashboard Overview
@@ -269,9 +269,5 @@ Educational demonstration only. Not licensed for healthcare production use.
 
 ---
 
-🪶 Credits
-
-Built by Yuriy Mykhalchuk
- · Founder of Wellpro Codeworks
 
 <p align="center"> © 2025 <a href="https://Wellprocodeworks.com">Wellpro Codeworks</a> · <a href="https://github.com/ymykhal">github.com/ymykhal</a> · <a href="https://www.upwork.com/agencies/Wellprocodeworks/">Upwork Agency</a> </p>
