@@ -6,7 +6,7 @@
 
 ### DO NOT USE WITH REAL PATIENT DATA
 
-This Altura EHR Demo application is **NOT HIPAA COMPLIANT** and must never be used with actual Protected Health Information (PHI) or in production healthcare environments.
+This Wellpro EHR Demo application is **NOT HIPAA COMPLIANT** and must never be used with actual Protected Health Information (PHI) or in production healthcare environments.
 
 ## Limitations
 

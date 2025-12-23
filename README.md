@@ -1,4 +1,4 @@
-# Altura EHR Demo
+# Wellpro EHR Demo
 
 A modern Electronic Health Record (EHR) demonstration built with **Next.js** and **Medplum** (FHIR R4). This application showcases HIPAA-compliant healthcare data management with a clean, professional interface.
 
@@ -47,8 +47,8 @@ A modern Electronic Health Record (EHR) demonstration built with **Next.js** and
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/ymykhal/altura-medplum-demo.git
-cd altura-medplum-demo
+git clone https://github.com/ymykhal/wellpro-medplum-demo.git
+cd wellpro-medplum-demo
 ```
 
 ### 2. Start Medplum Server
@@ -186,7 +186,7 @@ src/
 │   ├── layout.tsx            # Root layout with navigation
 │   └── globals.css           # Global styles
 public/
-└── logo.png                  # Altura logo asset
+└── logo.png                  # Wellpro logo asset
 ```
 
 ## 🐛 Troubleshooting
@@ -272,6 +272,6 @@ Educational demonstration only. Not licensed for healthcare production use.
 🪶 Credits
 
 Built by Yuriy Mykhalchuk
- · Founder of Altura Codeworks
+ · Founder of Wellpro Codeworks
 
-<p align="center"> © 2025 <a href="https://alturacodeworks.com">Altura Codeworks</a> · <a href="https://github.com/ymykhal">github.com/ymykhal</a> · <a href="https://www.upwork.com/agencies/alturacodeworks/">Upwork Agency</a> </p>
+<p align="center"> © 2025 <a href="https://Wellprocodeworks.com">Wellpro Codeworks</a> · <a href="https://github.com/ymykhal">github.com/ymykhal</a> · <a href="https://www.upwork.com/agencies/Wellprocodeworks/">Upwork Agency</a> </p>

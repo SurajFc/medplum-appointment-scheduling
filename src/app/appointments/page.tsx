@@ -5,7 +5,7 @@ import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Appointment, Patient, Practitioner } from '@medplum/fhirtypes';
 import { notifications } from '@mantine/notifications';
-import { medplum } from '../lib/medplum';
+import { medplum, getStoredProfile } from '../lib/medplum';
 import { AuthGate } from '../components/AuthGate';
 
 // Setup the localizer for react-big-calendar
@@ -31,7 +31,7 @@ export default function AppointmentsPage() {
   const [view, setView] = useState<'list' | 'calendar'>('list');
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [end, setEnd] = useState('');
-  
+
   // Calendar state management
   const [calendarView, setCalendarView] = useState<View>('month');
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -48,7 +48,7 @@ export default function AppointmentsPage() {
       setRows(appointmentsList);
       setPatients(patientsList);
       setPractitioners(practitionersList);
-      
+
     } catch (error) {
       console.error('Failed to load data:', error);
       notifications.show({
@@ -61,10 +61,10 @@ export default function AppointmentsPage() {
     }
   }, []);
 
-  useEffect(() => { 
+  useEffect(() => {
     const checkAndLoad = async () => {
       try {
-        const profile = await medplum.getProfile();
+        const profile = getStoredProfile();
         if (profile) {
           await load();
         }
@@ -87,7 +87,7 @@ export default function AppointmentsPage() {
       // Convert datetime-local to FHIR instant format (ISO 8601 with timezone)
       const startISO = new Date(start).toISOString();
       const endISO = new Date(end).toISOString();
-      
+
       await medplum.createResource<Appointment>({
         resourceType: 'Appointment',
         status: 'booked',
@@ -98,10 +98,10 @@ export default function AppointmentsPage() {
           { actor: { reference: practRef }, status: 'accepted' }
         ]
       });
-      
+
       await load();
       setPatientRef(''); setPractRef(''); setStart(''); setEnd('');
-      
+
       notifications.show({
         title: 'Success',
         message: 'Appointment created successfully!',
@@ -114,8 +114,8 @@ export default function AppointmentsPage() {
         message: 'Failed to create the appointment. Please check the details and try again.',
         color: 'red',
       });
-    } finally { 
-      setSaving(false); 
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -138,13 +138,13 @@ export default function AppointmentsPage() {
   // Helper function to resolve participant references to names
   const getParticipantName = useCallback((appointment: Appointment, resourceType: 'Patient' | 'Practitioner'): string => {
     if (!appointment.participant) return '';
-    
-    const participant = appointment.participant.find(p => 
+
+    const participant = appointment.participant.find(p =>
       p.actor?.reference?.startsWith(`${resourceType}/`)
     );
-    
+
     if (!participant?.actor?.reference) return '';
-    
+
     if (resourceType === 'Patient') {
       const patientId = participant.actor.reference.replace('Patient/', '');
       const patient = patients.find(p => p.id === patientId);
@@ -160,7 +160,7 @@ export default function AppointmentsPage() {
     return appointments.map((appointment) => {
       const patientName = getParticipantName(appointment, 'Patient') || 'Unknown Patient';
       const practitionerName = getParticipantName(appointment, 'Practitioner') || 'Unknown Practitioner';
-      
+
       return {
         id: appointment.id || '',
         title: `${patientName} with ${practitionerName}`,
@@ -180,12 +180,12 @@ export default function AppointmentsPage() {
 
   const getParticipantNames = (appointment: Appointment) => {
     if (!appointment.participant) return '—';
-    
+
     return appointment.participant
       .map(participant => {
         const reference = participant.actor?.reference;
         if (!reference) return 'Unknown';
-        
+
         if (reference.startsWith('Patient/')) {
           const patientId = reference.replace('Patient/', '');
           const patient = patients.find(p => p.id === patientId);
@@ -195,35 +195,35 @@ export default function AppointmentsPage() {
           const practitioner = practitioners.find(p => p.id === practitionerId);
           return practitioner ? getPractitionerName(practitioner) : reference;
         }
-        
-      return reference;
-    })
-    .join(', ');
-};
 
-// Update appointment status
-const updateAppointmentStatus = async (appointmentId: string, newStatus: Appointment['status']) => {
-  try {
-    await medplum.patchResource('Appointment', appointmentId, [
-      { op: 'replace', path: '/status', value: newStatus }
-    ]);
-    
-    notifications.show({
-      title: 'Status updated',
-      message: 'Appointment status updated successfully!',
-      color: 'green',
-    });
-    
-    // Reload appointments to reflect the change
-    await load();
-  } catch (error) {
-    console.error('Failed to update appointment status:', error);
-    notifications.show({
-      title: 'Error updating status',
-      message: 'Failed to update appointment status. Please try again.',
-      color: 'red',
-    });
-  }
+        return reference;
+      })
+      .join(', ');
+  };
+
+  // Update appointment status
+  const updateAppointmentStatus = async (appointmentId: string, newStatus: Appointment['status']) => {
+    try {
+      await medplum.patchResource('Appointment', appointmentId, [
+        { op: 'replace', path: '/status', value: newStatus }
+      ]);
+
+      notifications.show({
+        title: 'Status updated',
+        message: 'Appointment status updated successfully!',
+        color: 'green',
+      });
+
+      // Reload appointments to reflect the change
+      await load();
+    } catch (error) {
+      console.error('Failed to update appointment status:', error);
+      notifications.show({
+        title: 'Error updating status',
+        message: 'Failed to update appointment status. Please try again.',
+        color: 'red',
+      });
+    }
   };
 
   // Get color for calendar events based on status
@@ -246,21 +246,19 @@ const updateAppointmentStatus = async (appointmentId: string, newStatus: Appoint
         <div className="flex gap-2 w-full sm:w-auto">
           <button
             onClick={() => setView('list')}
-            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-sm ${
-              view === 'list'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-sm ${view === 'list'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
           >
             List View
           </button>
           <button
             onClick={() => setView('calendar')}
-            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-sm ${
-              view === 'calendar'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-sm ${view === 'calendar'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
           >
             Calendar View
           </button>
@@ -281,22 +279,22 @@ const updateAppointmentStatus = async (appointmentId: string, newStatus: Appoint
               <div className="bg-white p-4 sm:p-6 rounded-xl shadow mb-6">
                 <h2 className="font-medium mb-3">New Appointment</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  <select 
-                    className="w-full border rounded px-3 py-3 text-base" 
-                    value={patientRef} 
+                  <select
+                    className="w-full border rounded px-3 py-3 text-base"
+                    value={patientRef}
                     onChange={e => setPatientRef(e.target.value)}
                   >
-                <option value="">Select Patient</option>
-                {patients.map(patient => (
-                  <option key={patient.id} value={`Patient/${patient.id}`}>
-                    {getPatientName(patient)}
-                  </option>
-                ))}
-              </select>
+                    <option value="">Select Patient</option>
+                    {patients.map(patient => (
+                      <option key={patient.id} value={`Patient/${patient.id}`}>
+                        {getPatientName(patient)}
+                      </option>
+                    ))}
+                  </select>
 
-                  <select 
-                    className="w-full border rounded px-3 py-3 text-base" 
-                    value={practRef} 
+                  <select
+                    className="w-full border rounded px-3 py-3 text-base"
+                    value={practRef}
                     onChange={e => setPractRef(e.target.value)}
                   >
                     <option value="">Select Practitioner</option>
@@ -307,98 +305,97 @@ const updateAppointmentStatus = async (appointmentId: string, newStatus: Appoint
                     ))}
                   </select>
 
-                  <input type="datetime-local" className="w-full border rounded px-3 py-3 text-base" value={start} onChange={e=>setStart(e.target.value)} />
-                  <input type="datetime-local" className="w-full border rounded px-3 py-3 text-base" value={end} onChange={e=>setEnd(e.target.value)} />
+                  <input type="datetime-local" className="w-full border rounded px-3 py-3 text-base" value={start} onChange={e => setStart(e.target.value)} />
+                  <input type="datetime-local" className="w-full border rounded px-3 py-3 text-base" value={end} onChange={e => setEnd(e.target.value)} />
                 </div>
                 <button onClick={create} disabled={saving || !patientRef || !practRef || !start || !end}
-                        className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white px-4 py-3 rounded text-base font-medium">
+                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white px-4 py-3 rounded text-base font-medium">
                   {saving ? 'Creating...' : 'Create Appointment'}
-            </button>
-          </div>
+                </button>
+              </div>
 
-          <div className="bg-white rounded-xl shadow">
-            <div className="p-4 border-b">
-              <h2 className="font-medium">Appointments ({rows.length})</h2>
-            </div>
-            {rows.length === 0 ? (
-              <div className="p-8 text-center text-gray-600">
-                No appointments yet
+              <div className="bg-white rounded-xl shadow">
+                <div className="p-4 border-b">
+                  <h2 className="font-medium">Appointments ({rows.length})</h2>
+                </div>
+                {rows.length === 0 ? (
+                  <div className="p-8 text-center text-gray-600">
+                    No appointments yet
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm min-w-[600px] sm:min-w-0">
+                      <thead className="bg-Wellpro-primaryLight/10 hidden sm:table-header-group">
+                        <tr>
+                          <th className="p-3 text-left">Start</th>
+                          <th className="p-3 text-left">End</th>
+                          <th className="p-3 text-left">Participants</th>
+                          <th className="p-3 text-left">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map(a => (
+                          <tr key={a.id} className="border-t hover:bg-gray-50 block sm:table-row border rounded-lg sm:border-0 sm:rounded-none mb-4 sm:mb-0 p-3 sm:p-0">
+                            <td className="p-0 sm:p-3 block sm:table-cell">
+                              <div className="flex sm:block">
+                                <span className="font-medium sm:hidden text-gray-600 w-20 flex-shrink-0">Start:</span>
+                                <div>
+                                  {a.start ? new Date(a.start).toLocaleDateString() : '—'}
+                                  <div className="text-xs text-gray-500">
+                                    {a.start ? new Date(a.start).toLocaleTimeString() : ''}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-0 sm:p-3 block sm:table-cell">
+                              <div className="flex sm:block">
+                                <span className="font-medium sm:hidden text-gray-600 w-20 flex-shrink-0">End:</span>
+                                <div>
+                                  {a.end ? new Date(a.end).toLocaleDateString() : '—'}
+                                  <div className="text-xs text-gray-500">
+                                    {a.end ? new Date(a.end).toLocaleTimeString() : ''}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-0 sm:p-3 block sm:table-cell">
+                              <div className="flex sm:block">
+                                <span className="font-medium sm:hidden text-gray-600 w-20 flex-shrink-0">Participants:</span>
+                                <div className="text-xs sm:text-sm">
+                                  {getParticipantNames(a)}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-0 sm:p-3 block sm:table-cell">
+                              <div className="flex sm:block">
+                                <span className="font-medium sm:hidden text-gray-600 w-20 flex-shrink-0">Status:</span>
+                                <select
+                                  value={a.status || 'booked'}
+                                  onChange={(e) => a.id && updateAppointmentStatus(a.id, e.target.value as Appointment['status'])}
+                                  className={`text-xs border rounded px-2 py-1 font-medium ${a.status === 'booked' ? 'bg-blue-50 border-blue-200 text-blue-800' :
+                                    a.status === 'fulfilled' ? 'bg-green-50 border-green-200 text-green-800' :
+                                      a.status === 'cancelled' ? 'bg-red-50 border-red-200 text-red-800' :
+                                        a.status === 'checked-in' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
+                                          a.status === 'pending' ? 'bg-orange-50 border-orange-200 text-orange-800' :
+                                            'bg-gray-50 border-gray-200 text-gray-800'
+                                    }`}
+                                >
+                                  <option value="booked">Booked</option>
+                                  <option value="pending">Pending</option>
+                                  <option value="checked-in">Checked In</option>
+                                  <option value="fulfilled">Fulfilled</option>
+                                  <option value="cancelled">Cancelled</option>
+                                  <option value="noshow">No Show</option>
+                                </select>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm min-w-[600px] sm:min-w-0">
-                <thead className="bg-altura-primaryLight/10 hidden sm:table-header-group">
-                  <tr>
-                    <th className="p-3 text-left">Start</th>
-                    <th className="p-3 text-left">End</th>
-                    <th className="p-3 text-left">Participants</th>
-                    <th className="p-3 text-left">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map(a => (
-                    <tr key={a.id} className="border-t hover:bg-gray-50 block sm:table-row border rounded-lg sm:border-0 sm:rounded-none mb-4 sm:mb-0 p-3 sm:p-0">
-                      <td className="p-0 sm:p-3 block sm:table-cell">
-                        <div className="flex sm:block">
-                          <span className="font-medium sm:hidden text-gray-600 w-20 flex-shrink-0">Start:</span>
-                          <div>
-                            {a.start ? new Date(a.start).toLocaleDateString() : '—'}
-                            <div className="text-xs text-gray-500">
-                              {a.start ? new Date(a.start).toLocaleTimeString() : ''}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-0 sm:p-3 block sm:table-cell">
-                        <div className="flex sm:block">
-                          <span className="font-medium sm:hidden text-gray-600 w-20 flex-shrink-0">End:</span>
-                          <div>
-                            {a.end ? new Date(a.end).toLocaleDateString() : '—'}
-                            <div className="text-xs text-gray-500">
-                              {a.end ? new Date(a.end).toLocaleTimeString() : ''}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-0 sm:p-3 block sm:table-cell">
-                        <div className="flex sm:block">
-                          <span className="font-medium sm:hidden text-gray-600 w-20 flex-shrink-0">Participants:</span>
-                          <div className="text-xs sm:text-sm">
-                            {getParticipantNames(a)}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-0 sm:p-3 block sm:table-cell">
-                        <div className="flex sm:block">
-                          <span className="font-medium sm:hidden text-gray-600 w-20 flex-shrink-0">Status:</span>
-                          <select
-                            value={a.status || 'booked'}
-                            onChange={(e) => a.id && updateAppointmentStatus(a.id, e.target.value as Appointment['status'])}
-                            className={`text-xs border rounded px-2 py-1 font-medium ${
-                              a.status === 'booked' ? 'bg-blue-50 border-blue-200 text-blue-800' :
-                              a.status === 'fulfilled' ? 'bg-green-50 border-green-200 text-green-800' :
-                              a.status === 'cancelled' ? 'bg-red-50 border-red-200 text-red-800' :
-                              a.status === 'checked-in' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
-                              a.status === 'pending' ? 'bg-orange-50 border-orange-200 text-orange-800' :
-                              'bg-gray-50 border-gray-200 text-gray-800'
-                            }`}
-                          >
-                            <option value="booked">Booked</option>
-                            <option value="pending">Pending</option>
-                            <option value="checked-in">Checked In</option>
-                            <option value="fulfilled">Fulfilled</option>
-                            <option value="cancelled">Cancelled</option>
-                            <option value="noshow">No Show</option>
-                          </select>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
             </>
           )}          {/* Calendar View */}
           {view === 'calendar' && (

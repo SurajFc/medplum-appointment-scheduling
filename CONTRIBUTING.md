@@ -1,6 +1,6 @@
-# Contributing to Altura EHR Demo
+# Contributing to Wellpro EHR Demo
 
-Thank you for your interest in contributing to the Altura EHR Demo project!
+Thank you for your interest in contributing to the Wellpro EHR Demo project!
 
 ## 🚨 Important Notice
 
@@ -11,7 +11,7 @@ This is a **demonstration application** only. Please ensure any contributions ma
 1. **Fork the repository**
 2. **Clone your fork**:
    ```bash
-   git clone https://github.com/ymykhal/altura-medplum-demo.git
+   git clone https://github.com/ymykhal/wellpro-medplum-demo.git
    ```
 3. **Install dependencies**:
    ```bash
@@ -94,7 +94,7 @@ All submissions require review. We'll look for:
 ## Questions?
 
 - 📖 Check the [README](README.md) first
-- 🔍 Search existing [issues](https://github.com/ymykhal/altura-medplum-demo/issues)
+- 🔍 Search existing [issues](https://github.com/ymykhal/wellpro-medplum-demo/issues)
 - 💬 Create a new issue for questions
 
 ## License

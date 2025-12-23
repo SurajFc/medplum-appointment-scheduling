@@ -1,13 +1,13 @@
 # Docker Deployment Guide
 
-This guide explains how to deploy the Altura Medplum Demo using Docker.
+This guide explains how to deploy the Wellpro Medplum Demo using Docker.
 
 ## Quick Start
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/ymykhal/altura-medplum-demo.git
-   cd altura-medplum-demo
+   git clone https://github.com/ymykhal/wellpro-medplum-demo.git
+   cd wellpro-medplum-demo
    ```
 
 2. **Set up environment variables:**
@@ -60,9 +60,9 @@ This guide explains how to deploy the Altura Medplum Demo using Docker.
    ```yaml
    # docker-compose.override.yml
    services:
-     altura-medplum-demo:
+     wellpro-medplum-demo:
        labels:
-         - traefik.http.routers.altura-demo.rule=Host(`your-domain.com`)
+         - traefik.http.routers.Wellpro-demo.rule=Host(`your-domain.com`)
          # ... other Traefik labels
    ```
 
@@ -78,7 +78,7 @@ For production without Traefik, expose the port directly:
 ```yaml
 # docker-compose.override.yml
 services:
-  altura-medplum-demo:
+  wellpro-medplum-demo:
     ports:
       - "80:3000"  # or "443:3000" with SSL termination
 ```
@@ -89,12 +89,12 @@ services:
 
 ```bash
 # Build the image
-docker build -t altura-medplum-demo .
+docker build -t wellpro-medplum-demo .
 
 # Run with custom port
 docker run -p 8080:3000 \
   -e NEXT_PUBLIC_MEDPLUM_BASE_URL=https://api.medplum.com/ \
-  altura-medplum-demo
+  wellpro-medplum-demo
 ```
 
 ### Development Mode
@@ -114,17 +114,17 @@ If the health check fails, check:
 
 1. **Container logs:**
    ```bash
-   docker-compose logs altura-medplum-demo
+   docker-compose logs wellpro-medplum-demo
    ```
 
 2. **Network connectivity:**
    ```bash
-   docker-compose exec altura-medplum-demo curl -f http://localhost:3000/
+   docker-compose exec wellpro-medplum-demo curl -f http://localhost:3000/
    ```
 
 3. **Medplum server connectivity:**
    ```bash
-   docker-compose exec altura-medplum-demo curl -f $NEXT_PUBLIC_MEDPLUM_BASE_URL
+   docker-compose exec wellpro-medplum-demo curl -f $NEXT_PUBLIC_MEDPLUM_BASE_URL
    ```
 
 ### Memory Issues
@@ -134,7 +134,7 @@ For large deployments, increase memory:
 ```yaml
 # docker-compose.override.yml
 services:
-  altura-medplum-demo:
+  wellpro-medplum-demo:
     environment:
       - NODE_OPTIONS=--max-old-space-size=1024
 ```
@@ -164,10 +164,10 @@ For HTTPS deployments, ensure:
 docker-compose ps
 
 # View logs
-docker-compose logs -f altura-medplum-demo
+docker-compose logs -f wellpro-medplum-demo
 
 # Monitor resource usage
-docker stats altura-medplum-demo
+docker stats wellpro-medplum-demo
 ```
 
 ### Application Metrics
@@ -181,7 +181,7 @@ For high-traffic deployments:
 1. **Use multiple replicas:**
    ```yaml
    services:
-     altura-medplum-demo:
+     wellpro-medplum-demo:
        deploy:
          replicas: 3
    ```

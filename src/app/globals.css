@@ -2,12 +2,12 @@
 
 /* Tailwind v4 theming via @theme */
 @theme {
-  --color-altura-primary: #0a4a99;
-  --color-altura-primaryLight: #3f86dc;
-  --color-altura-ink: #0b1220;
-  --color-altura-fog: #f5f7fb;
+  --color-Wellpro-primary: #0a4a99;
+  --color-Wellpro-primaryLight: #3f86dc;
+  --color-Wellpro-ink: #0b1220;
+  --color-Wellpro-fog: #f5f7fb;
   --radius-xl2: 1rem;
 }
 
 /* Base look */
-html, body { background: var(--color-altura-fog); color: var(--color-altura-ink); }
+html, body { background: var(--color-Wellpro-fog); color: var(--color-Wellpro-ink); }

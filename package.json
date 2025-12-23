@@ -1,5 +1,5 @@
 {
-  "name": "altura-medplum-demo",
+  "name": "wellpro-medplum-demo",
   "version": "0.1.0",
   "description": "A modern Electronic Health Record (EHR) demonstration built with Next.js and Medplum (FHIR R4)",
   "private": true,
@@ -12,16 +12,16 @@
     "typescript",
     "demo"
   ],
-  "homepage": "https://github.com/ymykhal/altura-medplum-demo#readme",
+  "homepage": "https://github.com/ymykhal/wellpro-medplum-demo#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ymykhal/altura-medplum-demo.git"
+    "url": "https://github.com/ymykhal/wellpro-medplum-demo.git"
   },
   "bugs": {
-    "url": "https://github.com/ymykhal/altura-medplum-demo/issues"
+    "url": "https://github.com/ymykhal/wellpro-medplum-demo/issues"
   },
   "license": "MIT",
-  "author": "Altura Codeworks",
+  "author": "Wellpro Codeworks",
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",

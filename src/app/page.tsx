@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Patient, Appointment } from '@medplum/fhirtypes';
 import { notifications } from '@mantine/notifications';
-import { medplum } from './lib/medplum';
+import { medplum, getStoredProfile } from './lib/medplum';
 import { AuthGate } from './components/AuthGate';
 
 interface DashboardStats {
@@ -50,13 +50,13 @@ export default function Home() {
     try {
       setLoading(true);
       console.log('Starting dashboard data load...');
-      
-      const profile = await medplum.getProfile();
+
+      const profile = getStoredProfile();
       if (!profile) {
         console.log('Dashboard: No profile found, user not authenticated');
         return;
       }
-      
+
       console.log('Dashboard: User authenticated, profile:', profile.id, 'loading data...');
 
       // Load all data in parallel
@@ -84,11 +84,11 @@ export default function Home() {
       });
 
       // Calculate stats
-      const todayAppointments = appointments.filter((app: Appointment) => 
+      const todayAppointments = appointments.filter((app: Appointment) =>
         app.start && isToday(app.start)
       ).length;
 
-      const upcomingAppointments = appointments.filter((app: Appointment) => 
+      const upcomingAppointments = appointments.filter((app: Appointment) =>
         app.start && isFuture(app.start)
       ).length;
 
@@ -106,12 +106,12 @@ export default function Home() {
 
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
-      
+
       // Try to provide more specific error information
       if (error instanceof Error) {
         console.error('Error details:', error.message);
       }
-      
+
       notifications.show({
         title: 'Error loading dashboard',
         message: 'Failed to load dashboard data. Please refresh the page or try signing in again.',
@@ -153,7 +153,7 @@ export default function Home() {
               {loading ? 'Refreshing...' : 'Refresh Data'}
             </button>
           </div>
-          <p className="text-gray-600 mt-1">Welcome to Altura EHR Demo</p>
+          <p className="text-gray-600 mt-1">Welcome to Wellpro EHR Demo</p>
           {(stats.totalPatients === 0 && stats.totalPractitioners === 0 && stats.totalAppointments === 0) && (
             <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800">
@@ -313,13 +313,12 @@ export default function Home() {
                         {appointment.start ? new Date(appointment.start).toLocaleTimeString() : 'No time'}
                       </p>
                     </div>
-                    <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                      appointment.status === 'booked' ? 'bg-blue-100 text-blue-800' :
+                    <span className={`inline-flex px-2 py-1 text-xs rounded-full ${appointment.status === 'booked' ? 'bg-blue-100 text-blue-800' :
                       appointment.status === 'fulfilled' ? 'bg-green-100 text-green-800' :
-                      appointment.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                      appointment.status === 'checked-in' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                        appointment.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                          appointment.status === 'checked-in' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                      }`}>
                       {appointment.status}
                     </span>
                   </div>
@@ -327,9 +326,9 @@ export default function Home() {
               </div>
             )}
             <div className="mt-4">
-              <Link 
-                href="/appointments" 
-                className="text-altura-primary hover:text-altura-primary/80 text-sm font-medium"
+              <Link
+                href="/appointments"
+                className="text-Wellpro-primary hover:text-Wellpro-primary/80 text-sm font-medium"
               >
                 View all appointments →
               </Link>
@@ -355,11 +354,10 @@ export default function Home() {
                         {patient.birthDate ? `Born ${patient.birthDate}` : 'No birth date'}
                       </p>
                     </div>
-                    <span className={`inline-flex px-2 py-1 text-xs rounded-full capitalize ${
-                      patient.gender === 'male' ? 'bg-blue-100 text-blue-800' :
+                    <span className={`inline-flex px-2 py-1 text-xs rounded-full capitalize ${patient.gender === 'male' ? 'bg-blue-100 text-blue-800' :
                       patient.gender === 'female' ? 'bg-pink-100 text-pink-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                        'bg-gray-100 text-gray-800'
+                      }`}>
                       {patient.gender || 'Unknown'}
                     </span>
                   </div>
@@ -367,9 +365,9 @@ export default function Home() {
               </div>
             )}
             <div className="mt-4">
-              <Link 
-                href="/patients" 
-                className="text-altura-primary hover:text-altura-primary/80 text-sm font-medium"
+              <Link
+                href="/patients"
+                className="text-Wellpro-primary hover:text-Wellpro-primary/80 text-sm font-medium"
               >
                 View all patients →
               </Link>

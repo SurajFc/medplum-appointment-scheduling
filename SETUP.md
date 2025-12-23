@@ -55,7 +55,7 @@ If Docker is not installed:
 ```bash
 # Clone the repository (replace with actual URL when available)
 git clone <repository-url>
-cd altura-medplum-demo
+cd wellpro-medplum-demo
 
 # Or download and extract ZIP file if Git is not available
 ```
@@ -131,7 +131,7 @@ npm run dev
 ### 1. Access the Application
 - Open your web browser
 - Navigate to `http://localhost:3000`
-- You should see the Altura EHR Demo login page
+- You should see the Wellpro EHR Demo login page
 
 ### 2. Create Initial User Account
 Follow Medplum's sign-up process to create your first user account.

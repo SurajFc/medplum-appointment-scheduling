@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { Patient, Appointment } from '@medplum/fhirtypes';
 import { notifications } from '@mantine/notifications';
-import { medplum } from '../lib/medplum';
+import { medplum, getStoredProfile } from '../lib/medplum';
 import { AuthGate } from '../components/AuthGate';
 
 export default function PatientsPage() {
@@ -63,18 +63,21 @@ export default function PatientsPage() {
     setPatientAppointments([]);
   };
 
+  console.log("patient page medplum", medplum)
+
   useEffect(() => {
     const loadPatients = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        const profile = await medplum.getProfile();
+        console.log("load aptients", medplum)
+        const profile = getStoredProfile();
+        console.log('PatientsPage profile check:', !!profile, profile);
         if (!profile) {
           setError('Not authenticated');
           return;
         }
-        
+
         const patients = await medplum.searchResources('Patient', { _count: 20 });
         setRows(patients);
       } catch (err) {
@@ -89,14 +92,15 @@ export default function PatientsPage() {
         setLoading(false);
       }
     };
-
-    loadPatients();
-  }, []);
+    if (medplum) {
+      loadPatients();
+    }
+  }, [medplum]);
 
   return (
     <AuthGate>
       <h1 className="text-2xl font-semibold mb-4">Patients</h1>
-      
+
       {/* Search and Filter Controls */}
       {!loading && !error && (
         <div className="bg-white rounded-xl2 shadow p-4 mb-4">
@@ -107,14 +111,14 @@ export default function PatientsPage() {
                 placeholder="Search patients by name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-altura-primary focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-Wellpro-primary focus:border-transparent"
               />
             </div>
             <div className="sm:w-40">
               <select
                 value={genderFilter}
                 onChange={(e) => setGenderFilter(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-altura-primary focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-Wellpro-primary focus:border-transparent"
               >
                 <option value="all">All Genders</option>
                 <option value="male">Male</option>
@@ -123,7 +127,7 @@ export default function PatientsPage() {
               </select>
             </div>
           </div>
-          
+
           {/* Results Count */}
           <div className="mt-2 text-sm text-gray-600">
             {searchTerm || genderFilter !== 'all' ? (
@@ -134,36 +138,36 @@ export default function PatientsPage() {
           </div>
         </div>
       )}
-      
+
       {loading && (
         <div className="bg-white rounded-xl2 shadow p-8 text-center text-gray-600">
           Loading…
         </div>
       )}
-      
+
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl2 p-4 text-red-700">
           {error}
         </div>
       )}
-      
+
       {!loading && !error && filteredPatients.length === 0 && rows.length > 0 && (
         <div className="bg-white rounded-xl2 shadow p-8 text-center text-gray-600">
           No patients match your search criteria
         </div>
       )}
-      
+
       {!loading && !error && rows.length === 0 && (
         <div className="bg-white rounded-xl2 shadow p-8 text-center text-gray-600">
           No patients yet
         </div>
       )}
-      
+
       {!loading && !error && filteredPatients.length > 0 && (
         <div className="bg-white rounded-xl2 shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[500px] sm:min-w-0">
-              <thead className="bg-altura-primaryLight/10 hidden sm:table-header-group">
+              <thead className="bg-Wellpro-primaryLight/10 hidden sm:table-header-group">
                 <tr>
                   <th className="text-left p-3">Name</th>
                   <th className="text-left p-3">Birth Date</th>
@@ -178,8 +182,8 @@ export default function PatientsPage() {
                       <td className="p-0 sm:p-3 block sm:table-cell">
                         <div className="flex sm:block">
                           <span className="font-medium sm:hidden text-gray-600 w-16 flex-shrink-0">Name:</span>
-                          <button 
-                            className="text-altura-primary hover:text-altura-primary/80 hover:underline font-medium text-left"
+                          <button
+                            className="text-Wellpro-primary hover:text-Wellpro-primary/80 hover:underline font-medium text-left"
                             onClick={() => handlePatientSelect(p)}
                           >
                             {patientName}
@@ -195,11 +199,10 @@ export default function PatientsPage() {
                       <td className="p-0 sm:p-3 block sm:table-cell">
                         <div className="flex sm:block">
                           <span className="font-medium sm:hidden text-gray-600 w-16 flex-shrink-0">Gender:</span>
-                          <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                            p.gender === 'male' ? 'bg-blue-100 text-blue-800' :
+                          <span className={`inline-flex px-2 py-1 text-xs rounded-full ${p.gender === 'male' ? 'bg-blue-100 text-blue-800' :
                             p.gender === 'female' ? 'bg-pink-100 text-pink-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
+                              'bg-gray-100 text-gray-800'
+                            }`}>
                             {p.gender || 'Unknown'}
                           </span>
                         </div>
@@ -247,11 +250,10 @@ export default function PatientsPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Gender</label>
                     <p className="mt-1">
-                      <span className={`inline-flex px-2 py-1 text-xs rounded-full capitalize ${
-                        selectedPatient.gender === 'male' ? 'bg-blue-100 text-blue-800' :
+                      <span className={`inline-flex px-2 py-1 text-xs rounded-full capitalize ${selectedPatient.gender === 'male' ? 'bg-blue-100 text-blue-800' :
                         selectedPatient.gender === 'female' ? 'bg-pink-100 text-pink-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
+                          'bg-gray-100 text-gray-800'
+                        }`}>
                         {selectedPatient.gender || 'Unknown'}
                       </span>
                     </p>
@@ -312,13 +314,12 @@ export default function PatientsPage() {
                             {appointment.start ? new Date(appointment.start).toLocaleTimeString() : 'No time'}
                           </div>
                         </div>
-                        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                          appointment.status === 'booked' ? 'bg-blue-100 text-blue-800' :
+                        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${appointment.status === 'booked' ? 'bg-blue-100 text-blue-800' :
                           appointment.status === 'fulfilled' ? 'bg-green-100 text-green-800' :
-                          appointment.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                          appointment.status === 'checked-in' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                            appointment.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                              appointment.status === 'checked-in' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-gray-100 text-gray-800'
+                          }`}>
                           {appointment.status}
                         </span>
                       </div>

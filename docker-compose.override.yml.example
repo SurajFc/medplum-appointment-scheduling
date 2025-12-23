@@ -4,7 +4,7 @@
 version: '3.8'
 
 services:
-  altura-medplum-demo:
+  wellpro-medplum-demo:
     # Example production overrides
     environment:
       # Your custom Medplum server
@@ -17,14 +17,14 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=web
-      - traefik.http.routers.altura-demo.rule=Host(`your-domain.com`)
-      - traefik.http.routers.altura-demo.entrypoints=websecure
-      - traefik.http.routers.altura-demo.tls=true
-      - traefik.http.routers.altura-demo.tls.certresolver=letsencrypt
-      - traefik.http.services.altura-demo.loadbalancer.server.port=3000
+      - traefik.http.routers.Wellpro-demo.rule=Host(`your-domain.com`)
+      - traefik.http.routers.Wellpro-demo.entrypoints=websecure
+      - traefik.http.routers.Wellpro-demo.tls=true
+      - traefik.http.routers.Wellpro-demo.tls.certresolver=letsencrypt
+      - traefik.http.services.Wellpro-demo.loadbalancer.server.port=3000
       
       # Optional: Rate limiting and security headers
-      # - traefik.http.routers.altura-demo.middlewares=rate-limit@docker,secure-headers@docker
+      # - traefik.http.routers.Wellpro-demo.middlewares=rate-limit@docker,secure-headers@docker
     
     # Use external network if using Traefik
     networks:
